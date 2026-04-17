@@ -24,7 +24,7 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       alert("Login successful");
-      navigate("/home");
+      navigate("/");
     } catch (err) {
       console.log("LOGIN ERROR:", err.response?.data || err.message);
       alert("Invalid email or password");

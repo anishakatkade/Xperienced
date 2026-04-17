@@ -14,7 +14,7 @@ import { validate } from "../middleware/validate.js";
 
 const router = express.Router();
 
-router.post("/register", registerValidator, validate, registerUser);
+router.post("/register",registerValidator,validate, registerUser);//validate registerValidato
 
 router.post("/login", loginValidator, validate, loginUser);
 

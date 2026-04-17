@@ -1,148 +1,149 @@
-import { Link, NavLink } from "react-router-dom";
-import { Home, Compass, PenSquare, Menu, X, User } from "lucide-react";
-import { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Menu, X, User } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import API from "../api/axios";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(true);
-  const [lastScroll, setLastScroll] = useState(0);
+  const [openDropdown, setOpenDropdown] = useState(false);
+
+  const navigate = useNavigate();
+  const dropdownRef = useRef();
 
   const token = localStorage.getItem("token");
   const isLoggedIn = !!token;
 
+  // 🔹 Fetch user
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await API.get("/users/me");
         setUser(res.data.user);
       } catch (err) {
-        console.log(err);
+        console.log("User not logged in");
       }
     };
 
     if (token) fetchUser();
   }, [token]);
 
+  // 🔥 CLOSE DROPDOWN ON OUTSIDE CLICK
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > lastScroll && window.scrollY > 50) {
-        setShowNavbar(false);
-      } else {
-        setShowNavbar(true);
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenDropdown(false);
       }
-      setLastScroll(window.scrollY);
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScroll]);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const menu = "flex items-center gap-1 px-2 py-1 text-sm transition";
+  // 🔥 LOGOUT
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setOpenDropdown(false);
+    navigate("/login");
+  };
 
   return (
-    <div
-      className={`fixed top-0 w-full z-50 transition-transform duration-300 ${
-        showNavbar ? "translate-y-0" : "-translate-y-full"
-      }`}
-    >
-      <div className="max-w-6xl mx-auto px-4 py-2 flex justify-between items-center backdrop-blur-md bg-white/70 ">
-        <Link to="/" className="font-semibold text-gray-800">
-          X'perienced
-        </Link>
-
-        <div className="hidden md:flex gap-5">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `${menu} ${
-                isActive
-                  ? "text-green-600 font-medium"
-                  : "text-gray-500 hover:text-black"
-              }`
-            }
-          >
-            <Home size={16} /> Home
-          </NavLink>
-
-          <NavLink
-            to="/explore"
-            className={({ isActive }) =>
-              `${menu} ${
-                isActive
-                  ? "text-green-600 font-medium"
-                  : "text-gray-500 hover:text-black"
-              }`
-            }
-          >
-            <Compass size={16} /> Explore
-          </NavLink>
-
-          <NavLink
-            to="/share"
-            className={({ isActive }) =>
-              `${menu} ${
-                isActive
-                  ? "text-green-600 font-medium"
-                  : "text-gray-500 hover:text-black"
-              }`
-            }
-          >
-            <PenSquare size={16} /> Share
-          </NavLink>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {!isLoggedIn ? (
-            <>
-              <NavLink to="/login" className="text-sm text-gray-600">
-                Login
-              </NavLink>
-
-              <NavLink
-                to="/signup"
-                className="text-sm px-3 py-1 rounded-md bg-green-500 text-white hover:bg-green-600"
-              >
-                Sign up
-              </NavLink>
-            </>
-          ) : (
-            <div className="flex items-center gap-2 cursor-default">
-              <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center">
-                <User size={16} />
-              </div>
-
-              <span className="hidden md:block text-sm text-gray-700">
-                {user?.name || "User"}
-              </span>
-            </div>
-          )}
-
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden"
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
+    <>
+      {/* 🔷 LOGO */}
+      <div className="fixed top-5 left-6 z-50 text-lg font-semibold text-gray-800">
+        X'perienced
       </div>
 
-      {mobileOpen && (
-        <div className="md:hidden backdrop-blur-md bg-white/90 px-4 py-3 space-y-3 border-b">
-          <NavLink to="/" className="block text-sm">
+      {/* 🔷 CENTER NAVBAR */}
+      <div className="fixed top-4 left-0 w-full flex justify-center z-30 pointer-events-none">
+        <div className="pointer-events-auto flex items-center gap-8 px-8 py-3 rounded-full 
+        bg-white/80 backdrop-blur-lg shadow-md border border-gray-200">
+
+          <NavLink to="/" className="text-sm text-gray-600 hover:text-black">
             Home
           </NavLink>
 
-          <NavLink to="/explore" className="block text-sm">
+          <NavLink to="/explore" className="text-sm text-gray-600 hover:text-black">
             Explore
           </NavLink>
 
-          <NavLink to="/share" className="block text-sm">
+          <NavLink to="/share" className="text-sm text-gray-600 hover:text-black">
             Share
           </NavLink>
+
+        </div>
+      </div>
+
+      {/* 🔷 RIGHT SIDE */}
+      {!isLoggedIn ? (
+        <div className="fixed top-4 right-6 z-50 flex gap-3">
+          <NavLink to="/login" className="text-sm text-gray-600 hover:text-black">
+            Login
+          </NavLink>
+
+          <NavLink
+            to="/signup"
+            className="text-sm px-4 py-1.5 rounded-full bg-green-500 text-white"
+          >
+            Sign Up
+          </NavLink>
+        </div>
+      ) : (
+        <div ref={dropdownRef} className="fixed top-4 right-6 z-50">
+
+          {/* 🔥 USER BUTTON */}
+          <div
+            onClick={() => setOpenDropdown(!openDropdown)}
+            className="flex items-center gap-2 cursor-pointer group"
+          >
+            <div className="w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center shadow group-hover:scale-105 transition">
+              <User size={16} />
+            </div>
+
+            <span className="text-sm text-gray-700 font-medium">
+              {user?.name || "User"}
+            </span>
+          </div>
+
+          {/* 🔥 DROPDOWN */}
+          {openDropdown && (
+            <div className="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden animate-fadeIn">
+
+              {/* USER NAME */}
+              <div className="px-4 py-3 text-sm font-medium text-gray-800 border-b bg-gray-50">
+                👤 {user?.name || "User"}
+              </div>
+
+              {/* LOGOUT */}
+              <div
+                onClick={handleLogout}
+                className="px-4 py-3 text-sm text-red-500 hover:bg-red-50 cursor-pointer transition"
+              >
+                🚪 Logout
+              </div>
+
+            </div>
+          )}
         </div>
       )}
-    </div>
+
+      {/* 🔷 MOBILE */}
+      <div className="fixed top-4 right-4 md:hidden z-50">
+        <button onClick={() => setMobileOpen(!mobileOpen)}>
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </div>
+
+      {mobileOpen && (
+        <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 
+        w-[90%] bg-white rounded-xl shadow-lg p-4 space-y-3 z-40">
+
+          <NavLink to="/" onClick={() => setMobileOpen(false)}>Home</NavLink>
+          <NavLink to="/explore" onClick={() => setMobileOpen(false)}>Explore</NavLink>
+          <NavLink to="/share" onClick={() => setMobileOpen(false)}>Share</NavLink>
+
+        </div>
+      )}
+    </>
   );
 }

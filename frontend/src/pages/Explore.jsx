@@ -8,23 +8,18 @@ export default function Explore() {
   const [activeComment, setActiveComment] = useState(null);
   const [commentText, setCommentText] = useState("");
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      const res = await API.get("/experiences");
-      setPosts(Array.isArray(res.data) ? res.data : []);
-    };
-
-    fetchPosts();
-  }, []);
-
-  const fetchPosts = async () => {
+const fetchPosts = async () => {
+  try {
     const res = await API.get("/experiences");
-    setPosts(res.data);
-  };
+    setPosts(Array.isArray(res.data) ? res.data : []);
+  } catch (err) {
+    console.log("Error fetching posts:", err);
+  }
+};
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+useEffect(() => {
+  fetchPosts();
+}, []);
 
   useEffect(() => {
     socket.on("newComment", ({ postId, data }) => {

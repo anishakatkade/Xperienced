@@ -19,8 +19,8 @@ connectDB();
 
 app.use(
   cors({
-    origin: "https://xperienced-eight.vercel.app",
-    credentials: true,
+     origin: true,
+    credentials:true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+body {
+  font-family: 'Inter', sans-serif;
+}
+
 .input {
   @apply w-full rounded-xl border border-gray-200 bg-white 
   px-4 py-2.5 mt-1 text-sm 

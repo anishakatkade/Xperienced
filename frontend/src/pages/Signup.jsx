@@ -31,7 +31,7 @@ export default function Signup() {
       localStorage.setItem("profile", JSON.stringify(res.data.profile));
 
       alert("signup succfully");
-      navigate("/profile");
+      navigate("/");
     } catch (error) {
       alert(error.response?.data?.message || "sign up failed");
     }
