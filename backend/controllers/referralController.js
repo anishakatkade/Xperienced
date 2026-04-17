@@ -2,6 +2,9 @@ import nodemailer from "nodemailer";
 
 export const sendReferral = async (req, res) => {
   try {
+    console.log("EMAIL:", process.env.EMAIL_USER);
+console.log("PASS:", process.env.EMAIL_PASS);
+console.log("FILE:", req.file);
     const { message, toEmail } = req.body;
     const file = req.file;
 
