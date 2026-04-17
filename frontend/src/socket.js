@@ -1,5 +1,7 @@
 import { io } from "socket.io-client";
 
-const socket = io(import.meta.env.VITE_BACKEND_URL);
+const socket = io("https://xperienced.onrender.com", {
+  transports: ["websocket"],
+});
 
 export default socket;
