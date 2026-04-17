@@ -1,10 +1,47 @@
+
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Hero() {
   const navigate = useNavigate();
+  const [showSticky, setShowSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 150) {
+        setShowSticky(true);
+      } else {
+        setShowSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-28 md:pt-32 overflow-hidden bg-white">
+
+      {/* 🔥 Sticky "What's New" (Navbar ke niche) */}
+      {showSticky && (
+        <motion.div
+          initial={{ y: -60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -60, opacity: 0 }}
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-40"
+        >
+          <div
+            onClick={() => navigate("/explore")}
+            className="cursor-pointer inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-1.5 rounded-full text-sm font-medium shadow-sm hover:scale-105 transition"
+          >
+            ✨ What's New →
+            <span className="text-gray-700">
+              Explore latest interview stories
+            </span>
+          </div>
+        </motion.div>
+      )}
 
       {/* 🔥 Background Glow */}
       <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-green-200 rounded-full blur-3xl opacity-40"></div>
@@ -15,8 +52,11 @@ export default function Hero() {
       {/* 🔷 Content */}
       <div className="max-w-6xl mx-auto text-center relative z-10">
 
-        {/* ✨ Badge */}
-        <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-1.5 rounded-full text-sm font-medium mb-8 shadow-sm">
+        {/* ✨ Original Badge */}
+        <div
+          onClick={() => navigate("/explore")}
+          className="cursor-pointer inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-1.5 rounded-full text-sm font-medium mb-8 shadow-sm hover:scale-105 transition"
+        >
           ✨ What's New →
           <span className="text-gray-700">
             Explore latest interview stories
@@ -28,7 +68,7 @@ export default function Hero() {
           Crack Your Dream Job <br />
           with{" "}
           <span className="text-green-600">
-            Real Interview Experiences   🚀
+            Real Interview Experiences 🚀
           </span>
         </h1>
 
@@ -58,3 +98,4 @@ export default function Hero() {
     </div>
   );
 }
+

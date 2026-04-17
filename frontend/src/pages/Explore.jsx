@@ -1,4 +1,6 @@
+
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion"; // ✅ ADD
 import API from "../api/axios";
 import PostCard from "../components/PostCard";
 import socket from "../socket";
@@ -8,23 +10,23 @@ export default function Explore() {
   const [activeComment, setActiveComment] = useState(null);
   const [commentText, setCommentText] = useState("");
 
-const fetchPosts = async () => {
-  try {
-    const res = await API.get("/experiences");
-    setPosts(Array.isArray(res.data) ? res.data : []);
-  } catch (err) {
-    console.log("Error fetching posts:", err);
-  }
-};
+  const fetchPosts = async () => {
+    try {
+      const res = await API.get("/experiences");
+      setPosts(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.log("Error fetching posts:", err);
+    }
+  };
 
-useEffect(() => {
-  fetchPosts();
-}, []);
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   useEffect(() => {
     socket.on("newComment", ({ postId, data }) => {
-      setStories((prev) =>
-        prev.map((item) => (item._id === postId ? data : item)),
+      setPosts((prev) =>
+        prev.map((item) => (item._id === postId ? data : item))
       );
     });
 
@@ -32,7 +34,13 @@ useEffect(() => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 py-10">
+    <motion.div
+      className="min-h-screen bg-gray-100 p-6 py-10"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4 }}
+    >
       <h1 className="text-5xl font-bold mb-6 mt-10 ml-5 text-green-700">
         Explore Experiences 🚀
       </h1>
@@ -42,6 +50,7 @@ useEffect(() => {
           <PostCard key={post._id} post={post} refresh={fetchPosts} />
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
+

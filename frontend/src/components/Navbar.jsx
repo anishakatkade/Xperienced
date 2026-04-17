@@ -1,6 +1,8 @@
+
 import { NavLink, useNavigate } from "react-router-dom";
 import { Menu, X, User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import API from "../api/axios";
 
 export default function Navbar() {
@@ -20,15 +22,13 @@ export default function Navbar() {
       try {
         const res = await API.get("/users/me");
         setUser(res.data.user);
-      } catch (err) {
-        console.log("User not logged in");
-      }
+      } catch {}
     };
 
     if (token) fetchUser();
   }, [token]);
 
-  // 🔥 CLOSE DROPDOWN ON OUTSIDE CLICK
+  // 🔹 Outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -40,11 +40,10 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔥 LOGOUT
   const handleLogout = () => {
     localStorage.removeItem("token");
     setOpenDropdown(false);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -54,29 +53,51 @@ export default function Navbar() {
         X'perienced
       </div>
 
-      {/* 🔷 CENTER NAVBAR */}
-      <div className="fixed top-4 left-0 w-full flex justify-center z-30 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-8 px-8 py-3 rounded-full 
-        bg-white/80 backdrop-blur-lg shadow-md border border-gray-200">
+      {/* 🔷 CENTER NAV (ANIMATED) */}
+      <div className="fixed top-4 left-0 w-full flex justify-center z-30 pointer-events-none hidden md:flex">
+        
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="pointer-events-auto flex items-center gap-8 px-8 py-3 rounded-full 
+          bg-white/80 backdrop-blur-lg shadow-md border border-gray-200"
+        >
 
-          <NavLink to="/" className="text-sm text-gray-600 hover:text-black">
-            Home
-          </NavLink>
+          {["/", "/explore", "/share"].map((path, i) => {
+            const label = ["Home", "Explore", "Share"][i];
 
-          <NavLink to="/explore" className="text-sm text-gray-600 hover:text-black">
-            Explore
-          </NavLink>
+            return (
+              <NavLink
+                key={path}
+                to={path}
+                className={({ isActive }) =>
+                  `relative text-sm font-medium ${
+                    isActive ? "text-black" : "text-gray-600"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <motion.span whileHover={{ y: -2 }} className="relative">
+                    {label}
 
-          <NavLink to="/share" className="text-sm text-gray-600 hover:text-black">
-            Share
-          </NavLink>
-
-        </div>
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-underline"
+                        className="absolute left-0 -bottom-1 w-full h-[2px] bg-black rounded"
+                      />
+                    )}
+                  </motion.span>
+                )}
+              </NavLink>
+            );
+          })}
+        </motion.div>
       </div>
 
-      {/* 🔷 RIGHT SIDE */}
+      {/* 🔷 RIGHT SIDE DESKTOP */}
       {!isLoggedIn ? (
-        <div className="fixed top-4 right-6 z-50 flex gap-3">
+        <div className="fixed top-4 right-6 z-50 hidden md:flex gap-4 items-center">
           <NavLink to="/login" className="text-sm text-gray-600 hover:text-black">
             Login
           </NavLink>
@@ -89,14 +110,12 @@ export default function Navbar() {
           </NavLink>
         </div>
       ) : (
-        <div ref={dropdownRef} className="fixed top-4 right-6 z-50">
-
-          {/* 🔥 USER BUTTON */}
+        <div ref={dropdownRef} className="fixed top-4 right-6 z-50 hidden md:block">
           <div
             onClick={() => setOpenDropdown(!openDropdown)}
-            className="flex items-center gap-2 cursor-pointer group"
+            className="flex items-center gap-2 cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center shadow group-hover:scale-105 transition">
+            <div className="w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center">
               <User size={16} />
             </div>
 
@@ -105,45 +124,86 @@ export default function Navbar() {
             </span>
           </div>
 
-          {/* 🔥 DROPDOWN */}
           {openDropdown && (
-            <div className="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden animate-fadeIn">
-
-              {/* USER NAME */}
-              <div className="px-4 py-3 text-sm font-medium text-gray-800 border-b bg-gray-50">
-                👤 {user?.name || "User"}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-lg border"
+            >
+              <div className="px-4 py-3 text-sm border-b">
+                👤 {user?.name}
               </div>
 
-              {/* LOGOUT */}
               <div
                 onClick={handleLogout}
-                className="px-4 py-3 text-sm text-red-500 hover:bg-red-50 cursor-pointer transition"
+                className="px-4 py-3 text-red-500 hover:bg-red-50 cursor-pointer"
               >
-                🚪 Logout
+                Logout
               </div>
-
-            </div>
+            </motion.div>
           )}
         </div>
       )}
 
-      {/* 🔷 MOBILE */}
+      {/* 🔷 MOBILE MENU BUTTON */}
       <div className="fixed top-4 right-4 md:hidden z-50">
         <button onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
+      {/* 🔥 MOBILE MENU */}
       {mobileOpen && (
-        <div className="md:hidden fixed top-16 left-1/2 transform -translate-x-1/2 
-        w-[90%] bg-white rounded-xl shadow-lg p-4 space-y-3 z-40">
+        <motion.div
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="md:hidden fixed top-16 left-0 w-full bg-white shadow-lg z-40 p-6"
+        >
+          <div className="flex flex-col gap-4 text-center">
 
-          <NavLink to="/" onClick={() => setMobileOpen(false)}>Home</NavLink>
-          <NavLink to="/explore" onClick={() => setMobileOpen(false)}>Explore</NavLink>
-          <NavLink to="/share" onClick={() => setMobileOpen(false)}>Share</NavLink>
+            <NavLink to="/" onClick={() => setMobileOpen(false)}>
+              Home
+            </NavLink>
 
-        </div>
+            <NavLink to="/explore" onClick={() => setMobileOpen(false)}>
+              Explore
+            </NavLink>
+
+            <NavLink to="/share" onClick={() => setMobileOpen(false)}>
+              Share
+            </NavLink>
+
+            {!isLoggedIn ? (
+              <>
+                <NavLink
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="border py-2 rounded-lg"
+                >
+                  Login
+                </NavLink>
+
+                <NavLink
+                  to="/signup"
+                  onClick={() => setMobileOpen(false)}
+                  className="bg-green-500 text-white py-2 rounded-lg"
+                >
+                  Sign Up
+                </NavLink>
+              </>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="text-red-500 border py-2 rounded-lg"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+        </motion.div>
       )}
     </>
   );
 }
+
+

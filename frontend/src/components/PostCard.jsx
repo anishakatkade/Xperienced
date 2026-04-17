@@ -1,4 +1,6 @@
+
 import {
+  Send,
   Heart,
   MessageCircle,
   Eye,
@@ -46,6 +48,9 @@ export default function PostCard({ post }) {
   const [likes, setLikes] = useState([]);
   const [saved, setSaved] = useState([]);
   const [hovered, setHovered] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
+const [message, setMessage] = useState("");
+const [file, setFile] = useState(null);
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
   const userId = currentUser?._id;
@@ -110,7 +115,45 @@ export default function PostCard({ post }) {
   const avatarColor =
     avatarColors[(post.user?.name?.charCodeAt(0) || 0) % avatarColors.length];
 
+
+
+  const handleSendReferral = async () => {
+  try {
+    if (!message) {
+      alert("Please write a message");
+      return;
+    }
+
+    if (!file) {
+      alert("Please upload your resume");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("message", message);
+    formData.append("toEmail", post.user?.email); // 🔥 IMPORTANT
+    formData.append("file", file);
+
+    const res = await API.post("/referral/send", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    alert("Referral sent successfully 🚀");
+
+    setShowReferral(false);
+    setMessage("");
+    setFile(null);
+
+  } catch (error) {
+    console.log("Referral error:", error);
+    alert("Failed to send referral ❌");
+  }
+};
   return (
+    <>
     <div
       onClick={() => navigate(`/post/${post._id}`)}
       onMouseEnter={() => setHovered(true)}
@@ -536,37 +579,63 @@ export default function PostCard({ post }) {
 
         <div style={{ flex: 1 }} />
 
-        <button
-          onClick={handleSave}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-            padding: "5px 10px",
-            borderRadius: 8,
-            fontSize: 12,
-            fontWeight: 600,
-            color: isSaved ? "#0f172a" : "#94a3b8",
-            cursor: "pointer",
-            border: "none",
-            background: isSaved ? "#f1f5f9" : "none",
-            fontFamily: "inherit",
-            transition: "all 0.15s",
-          }}
-          onMouseEnter={(e) =>
-            !isSaved && (e.currentTarget.style.background = "#f8fafc")
-          }
-          onMouseLeave={(e) =>
-            !isSaved && (e.currentTarget.style.background = "none")
-          }
-        >
-          <Bookmark
-            size={13}
-            fill={isSaved ? "#0f172a" : "none"}
-            stroke={isSaved ? "#0f172a" : "currentColor"}
-          />
-          {isSaved ? "Saved" : "Save"}
-        </button>
+       <button
+  onClick={handleSave}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    padding: "5px 10px",
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: 600,
+    color: isSaved ? "#0f172a" : "#94a3b8",
+    cursor: "pointer",
+    border: "none",
+    background: isSaved ? "#f1f5f9" : "none",
+    fontFamily: "inherit",
+    transition: "all 0.15s",
+  }}
+  onMouseEnter={(e) =>
+    !isSaved && (e.currentTarget.style.background = "#f8fafc")
+  }
+  onMouseLeave={(e) =>
+    !isSaved && (e.currentTarget.style.background = "none")
+  }
+>
+
+  {/* ✅ FIXED: div instead of button */}
+  <div
+    onClick={(e) => {
+      e.stopPropagation();
+      setShowReferral(true);
+    }}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 5,
+      padding: "5px 10px",
+      borderRadius: 8,
+      fontSize: 12,
+      fontWeight: 600,
+      color: "#2563eb",
+      cursor: "pointer",
+      background: "#eff6ff",
+      marginLeft: 6,
+    }}
+  >
+    <Send size={13} />
+    Ask Referral
+  </div>
+
+  <Bookmark
+    size={13}
+    fill={isSaved ? "#0f172a" : "none"}
+    stroke={isSaved ? "#0f172a" : "currentColor"}
+  />
+  {isSaved ? "Saved" : "Save"}
+
+</button>
 
         <div
           style={{
@@ -600,5 +669,46 @@ export default function PostCard({ post }) {
         </div>
       </div>
     </div>
-  );
+
+    {showReferral && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    
+    <div className="bg-white p-6 rounded-xl w-[400px]">
+
+      <h2 className="text-lg font-semibold mb-4">
+        Request Referral 🚀
+      </h2>
+
+      <textarea
+        placeholder="Write your message..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        className="w-full border p-2 rounded mb-3"
+      />
+
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files[0])}
+        className="mb-4"
+      />
+
+      <div className="flex justify-end gap-2">
+        <button onClick={() => setShowReferral(false)}>
+          Cancel
+        </button>
+
+        <button
+          onClick={handleSendReferral}
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Send
+        </button>
+      </div>
+
+    </div>
+    </div>
+)}
+
+</>
+);
 }

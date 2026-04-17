@@ -1,7 +1,11 @@
+
+import toast from "react-hot-toast";
+import confetti from "canvas-confetti";
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import API from "../api/axios";
 
 export default function Login() {
@@ -9,108 +13,127 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await API.post("/auth/login", {
-        email,
-        password,
-      });
+      setLoading(true);
+
+      const res = await API.post("/auth/login", { email, password });
 
       localStorage.setItem("token", res.data.token);
-
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      alert("Login successful");
-      navigate("/");
+      toast.success("Login Successful 🚀");
+
+      confetti({
+        particleCount: 60,
+        spread: 60,
+        origin: { y: 0.6 },
+      });
+
+      setTimeout(() => navigate("/"), 1000);
     } catch (err) {
-      console.log("LOGIN ERROR:", err.response?.data || err.message);
-      alert("Invalid email or password");
+      toast.error("Invalid email or password ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-3 sm:px-6">
-      <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-5 sm:p-8">
-        <h2 className="text-2xl sm:text-3xl font-semibold text-center text-black mb-2">
-          Welcome Again
+    <div className="min-h-screen flex items-center justify-center bg-[#0f172a] px-4">
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl shadow-md w-full max-w-md p-8"
+      >
+        <h2 className="text-2xl font-semibold text-center text-white mb-2">
+          Welcome back
         </h2>
 
-        <p className="text-center text-gray-500 text-sm sm:text-base mb-6">
-          Welcome back! Sign in to explore and share experiences.
+        <p className="text-center text-gray-400 text-sm mb-6">
+          Sign in to continue
         </p>
 
         <form onSubmit={handleLogin} className="space-y-4">
+
+          {/* INPUT */}
           <input
             type="email"
-            placeholder="Enter email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 sm:py-3 focus:outline-none focus:ring-1 focus:ring-gray-200 text-sm sm:text-base"
+            className="w-full bg-transparent border border-white/10 text-white placeholder-gray-500 rounded-md px-3 py-2.5 focus:outline-none focus:border-white/30 transition"
             required
           />
 
           <input
             type="password"
-            placeholder="Enter password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-2.5 sm:py-3 focus:outline-none focus:ring-1 focus:ring-gray-200 text-sm sm:text-base"
+            className="w-full bg-transparent border border-white/10 text-white placeholder-gray-500 rounded-md px-3 py-2.5 focus:outline-none focus:border-white/30 transition"
             required
           />
 
+          {/* BUTTON */}
           <button
             type="submit"
-            className="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-2.5 sm:py-3 rounded-lg transition"
+            disabled={loading}
+            className="w-full bg-white text-black font-medium py-2.5 rounded-md transition hover:opacity-90 disabled:opacity-50"
           >
-            Login
+            {loading ? "Signing in..." : "login"}
           </button>
         </form>
 
-        <div className="flex items-center my-5">
-          <hr className="flex-1 border-gray-300" />
-          <span className="px-3 text-green-500 text-xs sm:text-sm">
-            or sign in with
-          </span>
-          <hr className="flex-1 border-gray-300" />
+        {/* Divider */}
+        <div className="flex items-center my-6">
+          <hr className="flex-1 border-white/10" />
+          <span className="px-3 text-gray-500 text-xs">or</span>
+          <hr className="flex-1 border-white/10" />
         </div>
 
-        <div className="flex justify-center gap-3 mb-5">
+        {/* Social */}
+        <div className="flex justify-center gap-4 mb-5">
           <button
             onClick={() => {
-              window.location.href = "http://localhost:5000/api/auth/google";
+              window.location.href =
+                "https://xperienced.onrender.com/api/auth/google";
             }}
-            className="flex items-center justify-center border border-gray-300 rounded-lg p-2 sm:p-3 hover:bg-gray-100 transition"
+            className="p-2.5 rounded-md bg-white/10 hover:bg-white/20 transition"
           >
             <FcGoogle size={20} />
           </button>
 
           <button
             onClick={() => {
-              window.location.href = "http://localhost:5000/api/auth/github";
+              window.location.href =
+                "https://xperienced.onrender.com/api/auth/github";
             }}
-            className="flex items-center justify-center border border-gray-300 rounded-lg p-2 sm:p-3 hover:bg-gray-100 transition"
+            className="p-2.5 rounded-md bg-white/10 hover:bg-white/20 transition"
           >
-            <FaGithub size={20} />
+            <FaGithub size={20} className="text-white" />
           </button>
 
-          <button className="flex items-center justify-center border border-gray-300 rounded-lg p-2 sm:p-3 hover:bg-gray-100 transition">
-            <FaLinkedin size={20} className="text-blue-700" />
+          <button className="p-2.5 rounded-md bg-white/10 hover:bg-white/20 transition">
+            <FaLinkedin size={20} className="text-blue-500" />
           </button>
         </div>
 
-        <p className="text-center text-gray-500 text-xs sm:text-sm">
+        <p className="text-center text-gray-500 text-sm">
           Don’t have an account?
           <span
             onClick={() => navigate("/signup")}
-            className="text-yellow-600 font-semibold cursor-pointer ml-1"
+            className="text-white font-medium cursor-pointer ml-1"
           >
             Sign up
           </span>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

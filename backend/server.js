@@ -13,6 +13,7 @@ import "./config/passport.js";
 import ProfileRoutes from "./routes/profileRoutes.js";
 import http from "http";
 import { Server } from "socket.io";
+import referralRoutes from "./routes/referralRoutes.js";
 
 const app = express();
 connectDB();
@@ -42,6 +43,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/profile", ProfileRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/experiences", experienceRoutes);
+app.use("/api/referral", referralRoutes);
 
 const server = http.createServer(app);
 
