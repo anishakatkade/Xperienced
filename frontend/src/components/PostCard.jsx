@@ -64,7 +64,7 @@ const [file, setFile] = useState(null);
     if (!post?._id || post._id === "undefined") return;
     const trackView = async () => {
       try {
-        await API.post(`/experiences/${post._id}/view`);
+        await API.post(`/api/experiences/${post._id}/view`);
       } catch {}
     };
     trackView();
@@ -76,7 +76,7 @@ const [file, setFile] = useState(null);
   const handleLike = async (e) => {
     e.stopPropagation();
     try {
-      const res = await API.post(`/experiences/${post._id}/like`);
+      const res = await API.post(`/api/experiences/${post._id}/like`);
       setLikes(res.data.likes);
     } catch {}
   };
@@ -84,7 +84,7 @@ const [file, setFile] = useState(null);
   const handleSave = async (e) => {
     e.stopPropagation();
     try {
-      const res = await API.post(`/experiences/${post._id}/save`);
+      const res = await API.post(`/api/experiences/${post._id}/save`);
       setSaved(res.data.savedBy || []);
     } catch {}
   };

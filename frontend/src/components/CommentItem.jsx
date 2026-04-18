@@ -25,7 +25,7 @@ export default function CommentItem({ comment, postId, postUser, updatePost }) {
   const handleLike = async () => {
     try {
       const res = await API.post(
-        `/experiences/${postId}/comment/${comment._id}/like`,
+        `/api/experiences/${postId}/comment/${comment._id}/like`,
       );
       setLikes(res.data.likes);
     } catch (err) {
@@ -37,12 +37,12 @@ export default function CommentItem({ comment, postId, postUser, updatePost }) {
     if (!replyText.trim()) return;
 
     try {
-      await API.post(`/experiences/${postId}/comment/${comment._id}/reply`, {
+      await API.post(`/api/experiences/${postId}/comment/${comment._id}/reply`, {
         text: replyText,
         replyTo: replyToUserId,
       });
 
-      const res = await API.get(`/experiences/${postId}`);
+      const res = await API.get(`/api/experiences/${postId}`);
 
       updatePost(res.data);
 

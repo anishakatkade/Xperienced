@@ -72,7 +72,7 @@ export default function PostDetail() {
 
   const fetchPost = async () => {
     try {
-      const res = await API.get(`/experiences/${id}`);
+      const res = await API.get(`/api/experiences/${id}`);
       setPost(res.data);
       setLikes(res.data.likes || []);
       setLiked(res.data.likes?.some((l) => l.toString() === userId));
@@ -84,7 +84,7 @@ export default function PostDetail() {
 
   const trackView = async () => {
     try {
-      await API.post(`/experiences/${id}/view`);
+      await API.post(`/api/experiences/${id}/view`);
     } catch {}
   };
 
@@ -92,7 +92,7 @@ export default function PostDetail() {
     if (!text.trim()) return;
     setSubmitting(true);
     try {
-      await API.post(`/experiences/${id}/comment`, { text });
+      await API.post(`/api/experiences/${id}/comment`, { text });
       setText("");
       fetchPost();
     } catch (err) {
@@ -104,7 +104,7 @@ export default function PostDetail() {
 
   const handleLike = async () => {
     try {
-      const res = await API.post(`/experiences/${id}/like`);
+      const res = await API.post(`/api/experiences/${id}/like`);
       setLikes(res.data.likes);
       setLiked(res.data.likes?.some((l) => l.toString() === userId));
     } catch {}
@@ -112,7 +112,7 @@ export default function PostDetail() {
 
   const handleSave = async () => {
     try {
-      const res = await API.post(`/experiences/${id}/save`);
+      const res = await API.post(`/api/experiences/${id}/save`);
       setSaved(res.data.savedBy?.some((s) => s.toString() === userId));
     } catch {}
   };
