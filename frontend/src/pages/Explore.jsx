@@ -12,7 +12,7 @@ export default function Explore() {
 
   const fetchPosts = async () => {
     try {
-      const res = await API.get("/experiences");
+      const res = await API.get("/api/experiences");
       setPosts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.log("Error fetching posts:", err);
