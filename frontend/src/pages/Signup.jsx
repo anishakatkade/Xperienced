@@ -33,7 +33,7 @@ export default function Signup() {
     try {
       setLoading(true);
 
-      const res = await API.post("/auth/register", formData);
+      const res = await API.post("/api/auth/register", formData);
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));

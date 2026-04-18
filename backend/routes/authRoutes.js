@@ -19,6 +19,12 @@ router.post("/register",registerValidator,validate, registerUser);//validate reg
 
 router.post("/login", loginValidator, validate, loginUser);
 
+router.get("/me", authMiddleware, (req, res) => {
+  res.json({
+    user: req.user,
+  });
+});
+
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] }),
@@ -57,9 +63,6 @@ router.get(
 
 router.post("/logout", logoutUser);
 
-router.get("/me", authMiddleware, (req, res) => {
-  res.json(req.user);
-});
 
 
 export default router;

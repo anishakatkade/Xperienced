@@ -53,11 +53,12 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/admin", adminRoutes);
 
-app.use("/api/users", userRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/profile", ProfileRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/experiences", experienceRoutes);
 app.use("/api/referral", referralRoutes);
+
 
 const server = http.createServer(app);
 

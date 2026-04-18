@@ -3,7 +3,7 @@ import axios from "axios";
 const API = axios.create({
 baseURL:
 
-"https://xperienced.onrender.com/api",
+"https://xperienced.onrender.com",
 
 
 

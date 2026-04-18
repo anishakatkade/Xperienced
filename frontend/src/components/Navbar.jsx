@@ -16,16 +16,15 @@ export default function Navbar() {
   const token = localStorage.getItem("token");
   const isLoggedIn = !!token;
 
-  // 🔹 Fetch user
- useEffect(() => {
+  // Fetch user
+useEffect(() => {
   const fetchUser = async () => {
     try {
-      const res = await API.get("/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUser(res.data);
+      const res = await API.get("/api/auth/me");
+
+      console.log("USER DATA:", res.data); // ✅ यहीं लिखना है
+
+     setUser(res.data);// ✅ FINAL FIX
     } catch (err) {
       console.log("User fetch error", err);
     }
@@ -34,7 +33,7 @@ export default function Navbar() {
   if (token) fetchUser();
 }, [token]);
 
-  // 🔹 Outside click
+  //  Outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -51,6 +50,24 @@ export default function Navbar() {
     setOpenDropdown(false);
     navigate("/");
   };
+  const handleDelete = async () => {
+  const confirmDelete = window.confirm("Are you sure you want to delete your account?");
+
+  if (!confirmDelete) return;
+
+  try {
+    await API.delete("/api/user/delete");
+
+    localStorage.removeItem("token");
+
+    alert("Account deleted");
+
+    navigate("/"); // redirect home
+  } catch (err) {
+    console.log(err);
+    alert("Error deleting account");
+  }
+};
 
   return (
     <>
@@ -146,6 +163,12 @@ export default function Navbar() {
               >
                 Logout
               </div>
+              <button
+  onClick={handleDelete}
+  className="text-red-500 hover:bg-red-100 px-4 py-2 rounded"
+>
+  Delete Account
+</button>
             </motion.div>
           )}
         </div>
