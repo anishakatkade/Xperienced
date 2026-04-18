@@ -17,16 +17,22 @@ export default function Navbar() {
   const isLoggedIn = !!token;
 
   // 🔹 Fetch user
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await API.get("/users/me");
-        setUser(res.data.user);
-      } catch {}
-    };
+ useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await API.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUser(res.data);
+    } catch (err) {
+      console.log("User fetch error", err);
+    }
+  };
 
-    if (token) fetchUser();
-  }, [token]);
+  if (token) fetchUser();
+}, [token]);
 
   // 🔹 Outside click
   useEffect(() => {

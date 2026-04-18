@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import cors from "cors";
+import session from "express-session";
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
@@ -33,7 +34,20 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(
+  session({
+    secret: "secret123",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true,
+      sameSite: "none",
+    },
+  })
+);
+
 app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/api/auth", authRoutes);
 
@@ -53,6 +67,7 @@ const io = new Server(server, {
       "http://localhost:5173",
       "https://xperienced-eight.vercel.app",
     ],
+      
   },
 });
 
@@ -66,7 +81,7 @@ io.on("connection", (Socket) => {
 
 export { io };
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
   console.log(`server ruunning on port ${PORT}`);
